@@ -85,3 +85,42 @@ When a module changes how the app fits together, add a section here:
 **Risks and open questions:** cost, privacy, accuracy or safety risks, and how
 you handle them.
 ```
+
+## Module 2: Ask Copper, the shopping chatbot
+
+**Summary:** A floating chat panel on the landing page that answers questions
+about products, colours, prices, totals and stock. The model doesn't guess:
+it picks from four read-only tools, and the panel shows every step it took.
+
+| Piece | Where | What it does |
+|---|---|---|
+| Page / route | `app/page.tsx` | Mounts `<AskCopper aiConfigured={isAiConfigured()} />`; no new page or route. The header gains an **Ask Copper** link to `#ask` |
+| Components | `components/copper/ask-copper.tsx`, `components/copper/tool-call-card.tsx` | The launcher, the side sheet with its **Use tools** switch, the stations (tool menu, thinking, tool calls, reply) and the open tool card |
+| Server Action | `lib/copper/assistant/ask.ts` | `askCopper({ messages, useTools })` returns a live `Progress` at once and streams the model's steps into it in the background |
+| Tools | `lib/copper/assistant/tools.ts` | `get_products`, `get_prices`, `calculate_cost`, `check_availability`, with zod contracts. Prices come from the catalog; stock from `readInventory()` on every call |
+| Instructions | `lib/copper/assistant/instructions.ts` | `COPPER_INSTRUCTIONS`, Copper's system prompt |
+| Data | `lib/copper/data/inventory.json` (part 1), Supabase `inventory` table (part 2) | Stock per product colour, read through `lib/copper/inventory.ts` |
+| AI calls | `callStream({ module: 2, feature: "ask-copper" })` | The default Gemini model with thought summaries on, up to 5 steps per question. A typical question with one tool call is roughly 2,000 input and 200 output tokens, a fraction of a cent |
+
+**Data flow:** shopper types a question → the panel calls the `askCopper`
+Server Action with this chat's history → `callStream` sends the conversation
+(plus instructions and tools when **Use tools** is on) to Gemini → when the
+model asks for a tool, the app runs it (catalog or stock list) and hands the
+result back → each stream part updates a `Progress` snapshot, sent to the
+panel through `createLive` → the panel redraws the stations and the reply.
+
+**Decisions and trade-offs:**
+
+- Tools on and tools off are two separate chats with separate histories, so
+  the tools-off model can't copy an answer the tools worked out.
+- With tools off, no instructions are sent either: telling the model to
+  "always use your tools" and then giving it none makes it return nothing.
+- Every update carries a fresh copy of everything so far, so the panel can
+  simply redraw and a missed update loses nothing.
+- Thought summaries are rendered with a tiny bold/code markdown renderer
+  rather than the full Streamdown stack, to keep the panel light.
+
+**Risks and open questions:** the model can still misread a tool result or a
+question, so the panel shows the tool's real input and output beside the
+reply. Stock answers are only as fresh as the inventory source (part 2 moves
+it to Supabase). The tools only read, so a wrong call can't change anything.

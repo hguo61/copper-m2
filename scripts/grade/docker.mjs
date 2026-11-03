@@ -120,7 +120,9 @@ function main() {
         '"Grading"). Never use your own login token.',
     );
   if (opts.evals && !process.env.GRADING_GOOGLE_GENERATIVE_AI_API_KEY)
-    fail("--evals needs GRADING_GOOGLE_GENERATIVE_AI_API_KEY (a grading-only key)");
+    fail(
+      "--evals needs GRADING_GOOGLE_GENERATIVE_AI_API_KEY (a grading-only key)",
+    );
   if (spawnSync("docker", ["info"], { stdio: "ignore" }).status !== 0)
     fail("Docker isn't running. Start Docker Desktop and try again.");
 

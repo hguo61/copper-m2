@@ -9,11 +9,7 @@ import { stepCountIs } from "ai";
 import { callStream, THOUGHT_SUMMARIES } from "@/lib/ai/call";
 import { createLive, type Live } from "@/lib/ai/live";
 import { COPPER_INSTRUCTIONS } from "@/lib/copper/assistant/instructions";
-import type {
-  Progress,
-  Step,
-  ToolStep,
-} from "@/lib/copper/assistant/progress";
+import type { Progress, Step, ToolStep } from "@/lib/copper/assistant/progress";
 import { copperTools } from "@/lib/copper/assistant/tools";
 
 export type ChatMessage = { role: "user" | "assistant"; content: string };

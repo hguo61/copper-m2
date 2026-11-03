@@ -50,7 +50,9 @@ function languageModel(model: ModelId) {
   if (!googleKey) throw new AiNotConfiguredError();
   const entry = MODELS.find((m) => m.id === model);
   const id =
-    entry && "googleId" in entry ? entry.googleId : model.slice("google/".length);
+    entry && "googleId" in entry
+      ? entry.googleId
+      : model.slice("google/".length);
   return createGoogleGenerativeAI({ apiKey: googleKey })(id);
 }
 

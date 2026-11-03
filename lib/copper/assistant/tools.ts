@@ -24,7 +24,12 @@ export type ProductList = {
 
 export type Prices = {
   products: { id: ProductId; name: string; priceUsd: number }[];
-  plans: { id: Plan["id"]; name: string; monthlyUsd: number; annualUsd: number }[];
+  plans: {
+    id: Plan["id"];
+    name: string;
+    monthlyUsd: number;
+    annualUsd: number;
+  }[];
 };
 
 export type CalculateCostInput = {

@@ -129,7 +129,9 @@ describe.skipIf(process.platform === "win32")("npm run grade:docker", () => {
     });
     expect(result.status, result.stderr).toBe(0);
     const args = result.runCall!;
-    expect(args[args.indexOf("GRADING_GOOGLE_GENERATIVE_AI_API_KEY") - 1]).toBe("-e");
+    expect(args[args.indexOf("GRADING_GOOGLE_GENERATIVE_AI_API_KEY") - 1]).toBe(
+      "-e",
+    );
     expect(args).toContain("--evals");
     expect(JSON.stringify(result.calls)).not.toContain("grading-key-value");
   });
